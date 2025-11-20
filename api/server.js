@@ -8,9 +8,9 @@ const cors = require('cors'); //URL and HTTPS
 
 //const routes
 const zonasRoutes = require('./routes/ZonasRoutes');
-const usuariosRoutes = require('./routes/UsuariosRoutes');
+// const usuariosRoutes = require('./routes/UsuariosRoutes');
 const app = express();
-const PORT = 3000;
+const PORT = 7000;
 
 //Middlewares (Urls of the site)
 app.use(cors());
@@ -27,7 +27,7 @@ mongoose.connect('mongodb://localhost:27017/SafeZone', {
 
 //Routes
 app.use('/api/zona', zonasRoutes);
-app.use('/api/estudiante', usuariosRoutes);
+// app.use('/api/estudiante', usuariosRoutes);
 
 //Initialize server with arrow function
 app.listen(PORT, ()=>{
