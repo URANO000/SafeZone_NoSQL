@@ -1,0 +1,1 @@
+//HENRY, DEFINE JSON
