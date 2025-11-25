@@ -1,0 +1,41 @@
+/* CSS base */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+    font-family: 'Montserrat', sans-serif; 
+    background-color: #f8f9fa; 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; 
+}
+
+/* Navbar */
+nav.navbar { background-color: #2E7D32; }
+nav.navbar a.nav-link { color: #fff; }
+nav.navbar a.nav-link:hover { color: #c8e6c9; }
+
+/* Hero */
+.hero { 
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: #fff; 
+    padding: 5rem 1.5rem; 
+    text-align: center; 
+    border-radius: 15px; 
+    margin-bottom: 3rem; 
+}
+.hero h1 { font-size: 3rem; font-weight: 700; margin-bottom: 1rem; }
+.hero p { font-size: 1.25rem; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+/* Cards */
+.card { border-radius: 15px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+.card .btn { font-size: 1.1rem; padding: 0.75rem 1.5rem; }
+
+/* Footer fijo abajo */
+footer { margin-top: auto; padding: 1.5rem 0; text-align: center; color: #6c757d; background-color: #f1f1f1; }
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.2rem; }
+    .hero p { font-size: 1rem; }
+}
