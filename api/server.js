@@ -6,6 +6,10 @@ const cors = require('cors');
 const zonasRoutes = require('./routes/ZonasRoutes');
 const usuariosRoutes = require('./routes/UsuariosRoutes'); 
 const votosRoutes = require('./routes/VotosRoutes');
+const reporteRoutes = require('./routes/ReportesRoutes');
+const rutasRoutes = require('./routes/RutasRoutes');
+const activityRoutes = require('./routes/Activity_logsRoutes');
+const adminRoutes = require('./routes/Admin_logRoutes');
 
 const app = express();
 const PORT = 7000;
@@ -31,11 +35,23 @@ mongoose.connect('mongodb://localhost:27017/SafeZone', {
 app.use('/api/zona', zonasRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/votos', votosRoutes);
+app.use('/api/reportes', reporteRoutes);
+app.use('/api/rutas', rutasRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/admin', adminRoutes);
+
+
 
 console.log('Rutas registradas:');
 console.log('   - /api/zona');
 console.log('   - /api/usuarios');
 console.log('   -/api/votos');
+console.log('   -/api/reportes');
+console.log('   -/api/rutas');
+console.log('   -/api/activity');
+console.log('   -/api/admin');
+
+
 
 // Initialize server
 app.listen(PORT, () => {
