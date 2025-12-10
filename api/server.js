@@ -10,6 +10,7 @@ const reporteRoutes = require('./routes/ReportesRoutes');
 const rutasRoutes = require('./routes/RutasRoutes');
 const activityRoutes = require('./routes/Activity_logsRoutes');
 const adminRoutes = require('./routes/Admin_logRoutes');
+const mediaRoutes = require('./routes/MediaRoutes');
 
 const app = express();
 const PORT = 7000;
@@ -39,6 +40,7 @@ app.use('/api/reportes', reporteRoutes);
 app.use('/api/rutas', rutasRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/media', mediaRoutes);
 
 
 
