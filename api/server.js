@@ -14,6 +14,7 @@ const mediaRoutes = require('./routes/MediaRoutes');
 const feedbackRoutes = require('./routes/FeedbackRoutes');
 const sesionesRoutes = require("./routes/SesionesRoutes");
 const alertasRoutes = require("./routes/AlertasRoutes");
+const comentariosRoutes = require("./routes/ComentariosRoutes");
 
 const app = express();
 const PORT = 7000;
@@ -47,6 +48,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/sesiones', sesionesRoutes);
 app.use('/api/alertas', alertasRoutes);
+app.use('/api/comentarios', comentariosRoutes);
 
 
 
