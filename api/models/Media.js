@@ -4,7 +4,7 @@ const MediaSchema = new mongoose.Schema(
   {
     usuarioId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Usuarios",
+      ref: "Usuario",
       required: true,
     },
 

@@ -17,7 +17,7 @@ route.get('/', async (req,resp) => {
 });
 
 //Get by id
-route.gwt('/:id', async (req,resp) => {
+route.get('/:id', async (req,resp) => {
     try{
         const voto = await Votos.findById(req.params.id);
         if(!voto){

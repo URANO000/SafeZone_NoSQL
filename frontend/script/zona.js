@@ -123,7 +123,7 @@ $(document).on("click", ".editarZona", function(e){
             }, 500);
         },
         error: function(xhr, status, error){
-            console.error("❌ ERROR AL EDITAR:");
+            console.error(" ERROR AL EDITAR:");
             console.error("URL intentada:", APIZONAS + id);
             console.error("Status HTTP:", xhr.status);
             console.error("Status text:", status);
