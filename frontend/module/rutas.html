@@ -1,226 +1,123 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeZone | Rutas</title>
+    <title>Administrar Rutas</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
-<body>
+<body class="bg-light">
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-success">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="./index.html">SafeZone</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<div class="container mt-4">
 
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="./index.html">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" href="./usuario.html">Usuarios</a></li>
-                <li class="nav-item"><a class="nav-link" href="./zona.html">Zonas</a></li>
-                <li class="nav-item"><a class="nav-link" href="./alerta.html">Alertas</a></li>
-                <li class="nav-item"><a class="nav-link" href="./seciones.html">Sesiones</a></li>
-                <li class="nav-item"><a class="nav-link" href="./feedback.html">Feedback</a></li>
-                <li class="nav-item"><a class="nav-link active" href="./rutas.html">Rutas</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+    <h1 class="text-center mb-4">Administración de Rutas</h1>
 
-<!-- MAIN CONTENT -->
-<div class="container my-5">
-    <h2 class="text-center fw-bold mb-4">Gestión de Rutas</h2>
-
-    <!-- FORM -->
-    <div class="card shadow-sm mb-4">
+    <!-- FORMULARIO -->
+    <div class="card mb-4">
+        <div class="card-header fw-bold">Formulario de Rutas</div>
         <div class="card-body">
-            <form id="formRuta">
-                <div class="row g-3">
+
+            <form id="rutaForm">
+
+                <div class="row mb-3">
 
                     <div class="col-md-4">
                         <label class="form-label">Usuario ID</label>
-                        <input type="text" id="usuarioId" class="form-control">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Origen</label>
-                        <input type="text" id="origen" class="form-control" required>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Destino</label>
-                        <input type="text" id="destino" class="form-control" required>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label">Camino (JSON)</label>
-                        <textarea id="camino" class="form-control" rows="2" placeholder='["Punto A", "Punto B"]'></textarea>
+                        <input type="text" id="usuarioId" class="form-control" required>
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Estatus</label>
-                        <input type="text" id="estatus" class="form-control" required>
+                        <select id="estatus" class="form-select">
+                            <option value="activo">Activo</option>
+                            <option value="completado">Completado</option>
+                        </select>
                     </div>
 
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha</label>
+                        <input type="datetime-local" id="createdAt" class="form-control" required>
+                    </div>
                 </div>
 
-                <div class="mt-4 text-center">
-                    <button type="submit" class="btn btn-success px-4">Guardar</button>
+                <!-- Origen -->
+                <h5>Origen</h5>
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Latitud</label>
+                        <input type="number" step="0.000001" id="origenLat" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Longitud</label>
+                        <input type="number" step="0.000001" id="origenLng" class="form-control" required>
+                    </div>
                 </div>
+
+                <!-- Destino -->
+                <h5>Destino</h5>
+                <div class="row mb-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Latitud</label>
+                        <input type="number" step="0.000001" id="destinoLat" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Longitud</label>
+                        <input type="number" step="0.000001" id="destinoLng" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Camino (JSON)</label>
+                    <textarea id="camino" class="form-control" placeholder='Ej: [{"lat":0,"lng":0}]'></textarea>
+                </div>
+
+                <button class="btn btn-primary" type="submit">
+                    <i class="fa fa-save"></i> Guardar
+                </button>
+
+                <button class="btn btn-secondary" type="button" id="btnCancelar" style="display:none;">
+                    Cancelar
+                </button>
+
             </form>
+
         </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="card shadow-sm">
+    <!-- TABLA -->
+    <div class="card">
+        <div class="card-header fw-bold">Lista de Rutas</div>
         <div class="card-body">
-            <table class="table table-striped table-hover">
-                <thead class="table-success">
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Origen</th>
-                        <th>Destino</th>
-                        <th>Camino</th>
-                        <th>Estatus</th>
-                        <th>Acciones</th>
-                    </tr>
+
+            <table class="table table-bordered table-striped" id="tablaRutas">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Camino</th>
+                    <th>Estatus</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
                 </thead>
-                <tbody id="tablaRutas">
-                    <!-- JS inserta aquí -->
-                </tbody>
+
+                <tbody></tbody>
+
             </table>
+
         </div>
     </div>
+
 </div>
 
-<!-- FOOTER -->
-<footer class="bg-dark text-white mt-auto py-4">
-    <div class="container">
-        <div class="row text-center text-md-start align-items-center">
-
-            <div class="col-md-6 mb-3 mb-md-0">
-                <h5 class="fw-bold">SafeZone</h5>
-                <p class="mb-0">Aplicación para verificar la seguridad de las zonas. &copy; 2025.</p>
-            </div>
-
-            <div class="col-md-3 mb-3 mb-md-0">
-                <h6 class="fw-bold">Enlaces</h6>
-                <ul class="list-unstyled">
-                    <li><a href="./index.html" class="text-white text-decoration-none">Inicio</a></li>
-                    <li><a href="./usuario.html" class="text-white text-decoration-none">Usuarios</a></li>
-                    <li><a href="./zona.html" class="text-white text-decoration-none">Zonas</a></li>
-                </ul>
-            </div>
-
-        </div>
-    </div>
-</footer>
-
-<!-- JS Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- JS CRUD -->
-<script>
-
-const API_URL = "http://localhost:3000/api/rutas/";
-let editId = null;
-
-// Cargar todas las rutas
-async function cargarRutas() {
-    const resp = await fetch(API_URL);
-    const data = await resp.json();
-
-    const tabla = document.getElementById("tablaRutas");
-    tabla.innerHTML = "";
-
-    data.forEach(r => {
-        tabla.innerHTML += `
-            <tr>
-                <td>${r._id}</td>
-                <td>${r.usuarioId || "N/A"}</td>
-                <td>${r.origen}</td>
-                <td>${r.destino}</td>
-                <td>${JSON.stringify(r.camino || [])}</td>
-                <td>${r.estatus}</td>
-                <td>
-                    <button class="btn btn-success btn-sm" onclick="editar('${r._id}')">Editar</button>
-                    <button class="btn btn-danger btn-sm" onclick="eliminar('${r._id}')">Eliminar</button>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-// Guardar o actualizar
-document.getElementById("formRuta").addEventListener("submit", async e => {
-    e.preventDefault();
-
-    let caminoJson = [];
-    try {
-        caminoJson = camino.value ? JSON.parse(camino.value) : [];
-    } catch (error) {
-        alert("El camino debe ser JSON válido");
-        return;
-    }
-
-    const ruta = {
-        usuarioId: usuarioId.value,
-        origen: origen.value,
-        destino: destino.value,
-        camino: caminoJson,
-        estatus: estatus.value
-    };
-
-    if (editId) {
-        await fetch(API_URL + editId, {
-            method: "PUT",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(ruta)
-        });
-        editId = null;
-    } else {
-        await fetch(API_URL, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(ruta)
-        });
-    }
-
-    document.getElementById("formRuta").reset();
-    cargarRutas();
-});
-
-// Editar
-async function editar(id) {
-    const resp = await fetch(API_URL + id);
-    const r = await resp.json();
-
-    usuarioId.value = r.usuarioId;
-    origen.value = r.origen;
-    destino.value = r.destino;
-    camino.value = JSON.stringify(r.camino || []);
-    estatus.value = r.estatus;
-
-    editId = id;
-}
-
-// Eliminar
-async function eliminar(id) {
-    await fetch(API_URL + id, { method: "DELETE" });
-    cargarRutas();
-}
-
-cargarRutas();
-
-</script>
-
+<script src="../script/rutas.js"></script>
 </body>
 </html>
