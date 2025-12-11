@@ -22,7 +22,7 @@ async function cargarMedia() {
                     <td><a href="${m.url}" target="_blank">Ver</a></td>
                     <td>${m.verificado ? "✔" : "❌"}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm" onclick="editar('${m._id}')">
+                        <button class="btn btn-primary btn-sm" onclick="editar('${m._id}')">
                             <i class="fa fa-edit"></i>
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="eliminar('${m._id}')">

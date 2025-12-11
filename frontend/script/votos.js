@@ -20,7 +20,7 @@ async function cargarVotos() {
                     <td>${v.voto}</td>
 
                     <td>
-                        <button onclick="eliminarVoto('${v._id}')">Eliminar</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarVoto('${v._id}')"><i class="fa fa-trash"></i></button>
                     </td>
                 </tr>
             `;
