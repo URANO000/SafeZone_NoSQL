@@ -29,11 +29,11 @@ const ReportesSchema = new mongoose.Schema(
             require: true
         },
         usuarioId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             required: true
         },
         zonaId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             required: true
         }
 

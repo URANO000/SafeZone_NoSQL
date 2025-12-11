@@ -25,7 +25,7 @@ const destinoSchema = new mongoose.Schema({
 const RutasSchema = new mongoose.Schema(
     {
         usuarioId:{
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             require:true
         },
         origen: {

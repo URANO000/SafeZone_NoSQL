@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const AdminLogSchema = new mongoose.Schema(
     {
         usuarioId:{
-            type:String,
+            type:mongoose.Schema.Types.ObjectId,
             require: true
         },
         accion: {
