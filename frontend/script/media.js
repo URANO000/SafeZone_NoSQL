@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", cargarMedia);
 async function cargarMedia() {
     try {
         const resp = await fetch(APIMEDIA);
-        const data = await resp.json();
+        const data = await resp.
+        json();
 
         const tbody = document.querySelector("#tablaMedia tbody");
         tbody.innerHTML = "";

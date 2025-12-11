@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const VotosSchema = new mongoose.Schema(
     {
         reporteId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             require: true
         },
         usuarioId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             require: true
         },
         voto: {

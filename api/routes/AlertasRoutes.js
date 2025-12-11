@@ -2,19 +2,13 @@ const express = require("express");
 const route = express.Router();
 const Alertas = require("../models/Alertas");
 
-const { logAction } = require("./logger.js");
+
 
 // POST
 route.post("/", async (req, resp) => {
   try {
     const alerta = new Alertas(req.body);
     const guardada = await alerta.save();
-
-    await logAction({
-      usuarioId: guardada.usuarioId,
-      accion: "Se creó una alerta",
-      ip: req.ip
-    });
 
     resp.status(201).json(guardada);
   } catch (error) {
@@ -60,12 +54,6 @@ route.put("/:id", async (req, resp) => {
       return resp.status(404).json({ mensaje: "Alerta no encontrada" });
     }
 
-    await logAction({
-      usuarioId: actualizado.usuarioId,
-      accion: "Se actualizó una alerta",
-      ip: "N/A"
-    });
-
     resp.json(actualizado);
   } catch (error) {
     resp.status(400).json({ mensaje: error.message });
@@ -80,12 +68,6 @@ route.delete("/:id", async (req, resp) => {
     if (!eliminada) {
       return resp.status(404).json({ mensaje: "Alerta no encontrada" });
     }
-
-    await logAction({
-      usuarioId: eliminada.usuarioId,
-      accion: "Se eliminó una alerta",
-      ip: req.ip
-    });
 
     resp.json({ mensaje: "Alerta eliminada" });
   } catch (error) {
