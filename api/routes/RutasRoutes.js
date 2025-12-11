@@ -5,6 +5,9 @@ const Ruta = require('../models/Rutas');
 
 console.log("RutasRoutes cargado correctamente");
 
+//Logger
+
+
 //HTTP METHODS
 
 //GET

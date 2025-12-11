@@ -1,92 +1,157 @@
-const API_BASE = "http://localhost:7000/api/votos"; // AJUSTA SI ES NECESARIO
+// ========================
+// CONFIG
+// ========================
+const APIVOTOS = "http://localhost:7000/api/votos/";
+let modoEdicionVoto = false;
+let idVotoEdicion = null;
 
-// -----------------------------
-// CARGAR TODOS LOS VOTOS
-// -----------------------------
-async function cargarVotos() {
-    try {
-        const resp = await fetch(API_BASE);
-        const data = await resp.json();
-        console.log(data);
+// ========================
+// CARGAR LISTA DE VOTOS
+// ========================
+function cargarVotos() {
+    $.ajax({
+        type: "GET",
+        url: APIVOTOS,
+        success: function(votos) {
+            console.log("Votos cargados:", votos);
 
-        let html = "";
+            const tbody = $("#tablaVotos");
+            tbody.empty();
 
-        data.forEach(v => {
-            html += `
-                <tr>
-                    <td>${v._id}</td>
-                    <td>${v.reporteId}</td>
-                    <td>${v.usuarioId}</td>
-                    <td>${v.voto}</td>
-
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="eliminarVoto('${v._id}')"><i class="fa fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        document.getElementById("tablaVotos").innerHTML = html;
-
-    } catch (error) {
-        console.error("Error cargando votos:", error);
-    }
+            votos.forEach(voto => {
+                tbody.append(`
+                    <tr>
+                        <td>${voto._id}</td>
+                        <td>${voto.reporteId}</td>
+                        <td>${voto.usuarioId}</td>
+                        <td>${voto.voto}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm editarVoto" data-id="${voto._id}">Editar</button>
+                            <button class="btn btn-danger btn-sm eliminarVoto" data-id="${voto._id}">Eliminar</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        },
+        error: function(err) {
+            console.error("Error al cargar votos:", err);
+        }
+    });
 }
 
-cargarVotos();
+// ========================
+// CANCELAR EDICIÓN
+// ========================
+function cancelarEdicionVotos() {
+    modoEdicionVoto = false;
+    idVotoEdicion = null;
 
+    $("#votosForm")[0].reset();
+    $("#votosForm button[type='submit']").text("Guardar Voto");
+    $("#btnCancelar").hide();
+}
 
-// -----------------------------
-// CREAR NUEVO VOTO
-// -----------------------------
-async function crearVoto() {
-    const payload = {
-        reporteId: document.getElementById("reporteId").value,
-        usuarioId: document.getElementById("usuarioId").value,
-        voto: Number(document.getElementById("voto").value)
+// ========================
+// GUARDAR O ACTUALIZAR VOTO
+// ========================
+$("#votosForm").on("submit", function(e) {
+    e.preventDefault();
+
+    const datosVoto = {
+        reporteId: $("#reporteId").val(),
+        usuarioId: $("#usuarioId").val(),
+        voto: parseInt($("#voto").val())
     };
 
-    try {
-        const resp = await fetch(API_BASE, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(payload)
-        });
+    const tipo = modoEdicionVoto ? "PUT" : "POST";
+    const url = modoEdicionVoto ? `${APIVOTOS}${idVotoEdicion}` : APIVOTOS;
 
-        if (!resp.ok) {
-            const err = await resp.json();
-            alert("Error: " + err.message);
-            return;
+    console.log("Enviando:", tipo, url, datosVoto);
+
+    $.ajax({
+        type: tipo,
+        url: url,
+        contentType: "application/json",
+        data: JSON.stringify(datosVoto),
+        success: function() {
+            alert(modoEdicionVoto ? "Voto actualizado exitosamente" : "Voto agregado exitosamente");
+            cancelarEdicionVotos();
+            cargarVotos();
+        },
+        error: function(err) {
+            console.error("Error al guardar voto:", err);
+            alert("Error al guardar voto");
         }
+    });
+});
 
-        alert("Voto guardado correctamente");
-        cargarVotos();
+// ========================
+// EDITAR VOTO
+// ========================
+$(document).on("click", ".editarVoto", function() {
+    const id = $(this).data("id");
 
-    } catch (error) {
-        console.error("Error guardando voto:", error);
-    }
-}
+    console.log("Editando voto:", id);
 
+    $.ajax({
+        type: "GET",
+        url: APIVOTOS + id,
+        success: function(voto) {
+            console.log("Voto recibido:", voto);
 
-// -----------------------------
+            $("#reporteId").val(voto.reporteId);
+            $("#usuarioId").val(voto.usuarioId);
+            $("#voto").val(voto.voto);
+
+            modoEdicionVoto = true;
+            idVotoEdicion = id;
+
+            $("#votosForm button[type='submit']").text("Actualizar Voto");
+            $("#btnCancelar").show();
+
+            $("html, body").animate({
+                scrollTop: $("#votosForm").offset().top - 100
+            }, 500);
+        },
+        error: function(xhr) {
+            console.error("Error al cargar voto:", xhr.responseText);
+            alert("Error al cargar el voto para editar");
+        }
+    });
+});
+
+// ========================
 // ELIMINAR VOTO
-// -----------------------------
-async function eliminarVoto(id) {
-    if (!confirm("¿Eliminar voto?")) return;
+// ========================
+$(document).on("click", ".eliminarVoto", function() {
+    const id = $(this).data("id");
 
-    try {
-        const resp = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+    if (!confirm("¿Desea eliminar este voto?")) return;
 
-        if (!resp.ok) {
-            alert("No se pudo eliminar");
-            return;
+    $.ajax({
+        type: "DELETE",
+        url: `${APIVOTOS}${id}`,
+        success: function() {
+            alert("Voto eliminado exitosamente");
+            cargarVotos();
+        },
+        error: function(err) {
+            console.error("Error al eliminar voto:", err);
+            alert("Error al eliminar voto");
         }
+    });
+});
 
-        alert("Voto eliminado");
-        cargarVotos();
+// ========================
+// BOTÓN CANCELAR
+// ========================
+$("#btnCancelar").on("click", function() {
+    cancelarEdicionVotos();
+});
 
-    } catch (error) {
-        console.error("Error eliminando:", error);
-    }
-}
-
+// ========================
+// INICIALIZAR
+// ========================
+$(document).ready(function() {
+    cargarVotos();
+});
