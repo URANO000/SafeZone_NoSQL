@@ -65,6 +65,7 @@ route.post('/', async(req,resp) => {
     try{
         const saved = await newRuta.save();
         resp.status(201).json(saved);
+        resp.status(201).json(saved);
 
     }catch (error){
         console.error('Error en POST:', error);

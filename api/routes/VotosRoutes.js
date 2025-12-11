@@ -50,6 +50,7 @@ route.post('/', async(req,resp) => {
     try{
         const savedVoto = await newVoto.save();
         console.log('Voto guardado:', savedVoto.voto);
+        resp.status(201).json(savedVoto);
 
     }catch(error){
         resp.status(400).json({message: error.message});
