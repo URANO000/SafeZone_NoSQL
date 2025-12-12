@@ -1,22 +1,22 @@
-
 const APIRUTAS = "http://localhost:7000/api/rutas/";
 
-let editId = null;
+let idEdicion = null;
+let modoEdicion = false;
 
 // Cargar rutas al iniciar
-document.addEventListener("DOMContentLoaded", cargarRutas);
 
-async function cargarRutas() {
-    try {
-        const resp = await fetch(APIRUTAS);
-        const rutas = await resp.json();
+function cargarRutas() {
+    $.ajax({
+        type: "GET",
+        url: APIRUTAS,
+        success: function (rutas) {
+            const tbody = $("#tablaRutas tbody");
+            tbody.empty();
 
-        const tbody = document.querySelector("#tablaRutas tbody");
-        tbody.innerHTML = "";
-
-        rutas.forEach(r => {
-            tbody.innerHTML += `
-                <tr>
+            rutas.forEach(r => {
+                tbody.append(
+                    `
+                    <tr>
                     <td>${r._id}</td>
                     <td>${r.usuarioId}</td>
 
@@ -29,101 +29,180 @@ async function cargarRutas() {
                     <td>${new Date(r.createdAt).toLocaleString()}</td>
 
                     <td>
-                        <button class="btn btn-warning btn-sm" onclick="editar('${r._id}')">
-                            <i class="fa fa-edit"></i>
+                        <button class="btn btn-primary btn-sm editarRuta" data-id="${r._id}">
+                            Editar
                         </button>
 
-                        <button class="btn btn-danger btn-sm" onclick="eliminarRuta('${r._id}')">
-                            <i class="fa fa-trash"></i>
+                        <button class="btn btn-danger btn-sm eliminarRuta" data-id="${r._id}">
+                            Eliminar
                         </button>
                     </td>
                 </tr>
-            `;
-        });
+                `
+                );
 
-    } catch (error) {
-        console.error("Error al cargar rutas:", error);
-    }
-}
+            })
+        },
+        error: function (err) {
+            console.error("Error al cargar rutas");
+        }
+    })
+};
 
-// Guardar / actualizar ruta
-document.querySelector("#rutaForm").addEventListener("submit", async e => {
+//Guardar o actualizar ruta
+$("#rutaFormulario").on("submit", function (e) {
     e.preventDefault();
 
-    const rutaData = {
-        usuarioId: document.querySelector("#usuarioId").value,
 
+    //Parsear camino desde textarea
+    let caminoData = [];
+    try {
+        const raw = $("#camino").val().trim();
+        caminoData = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        alert("El formato del camino no es JSON válido.");
+        console.error("JSON inválido en camino:", e);
+        return;
+    }
+
+    //Construir objeto según el schema
+    const datos = {
+        usuarioId: $("#usuarioId").val(),
+        estatus: $("#estatus").val(),
         origen: {
-            lat: Number(document.querySelector("#origenLat").value),
-            lng: Number(document.querySelector("#origenLng").value)
+            lat: parseFloat($("#origenLat").val()),
+            lng: parseFloat($("#origenLng").val())
         },
-
         destino: {
-            lat: Number(document.querySelector("#destinoLat").value),
-            lng: Number(document.querySelector("#destinoLng").value)
+            lat: parseFloat($("#destinoLat").val()),
+            lng: parseFloat($("#destinoLng").val())
         },
-
-        camino: document.querySelector("#camino").value ? JSON.parse(document.querySelector("#camino").value) : null,
-
-        estatus: document.querySelector("#estatus").value,
-
-        createdAt: document.querySelector("#createdAt").value
+        camino: caminoData
     };
 
-    const metodo = editId ? "PUT" : "POST";
-    const endpoint = editId ? `${APIRUTAS}${editId}` : APIRUTAS;
+    //Determinar si es POST o PUT
+    const tipoPeticion = modoEdicion ? "PUT" : "POST";
+    const urlPeticion = modoEdicion ? `${APIRUTAS}${idEdicion}` : APIRUTAS;
 
-    try {
-        await fetch(endpoint, {
-            method: metodo,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(rutaData)
-        });
+    console.log("Enviando petición:", tipoPeticion, urlPeticion, datos);
 
-        limpiarFormulario();
-        cargarRutas();
-
-    } catch (error) {
-        console.error("Error guardando ruta:", error);
-    }
+    $.ajax({
+        type: tipoPeticion,
+        url: urlPeticion,
+        data: JSON.stringify(datos),
+        contentType: "application/json",
+        success: function (response) {
+            alert(modoEdicion ? "Ruta actualizada exitosamente" : "Ruta agregada exitosamente");
+            cancelarEdicion();
+            cargarRutas();
+        },
+        error: function (err) {
+            console.error("Error al guardar ruta:", err);
+            console.error("Respuesta del servidor:", err.responseText);
+            alert("Error al guardar ruta");
+        }
+    });
 });
 
-// Editar ruta
-async function editar(id) {
-    editId = id;
+//Editar ruta
+$(document).on("click", ".editarRuta", function (e) {
+    e.preventDefault();
+    const id = $(this).data("id");
 
-    const resp = await fetch(`${APIRUTAS}${id}`);
-    const r = await resp.json();
+    console.log("=== INICIO DEBUG EDITAR RUTA ===");
+    console.log("ID del botón:", id);
+    console.log("Tipo de ID:", typeof id);
+    console.log("API URL base:", APIRUTAS);
+    console.log("URL completa que se va a llamar:", APIRUTAS + id);
+    console.log("=== FIN DEBUG ===");
 
-    document.querySelector("#usuarioId").value = r.usuarioId;
+    $.ajax({
+        type: "GET",
+        url: APIRUTAS + id,
+        success: function (ruta) {
 
-    document.querySelector("#origenLat").value = r.origen.lat;
-    document.querySelector("#origenLng").value = r.origen.lng;
+            //Llenar campos del form
+            $("#usuarioId").val(ruta.usuarioId);
 
-    document.querySelector("#destinoLat").value = r.destino.lat;
-    document.querySelector("#destinoLng").value = r.destino.lng;
+            $("#estatus").val(ruta.estatus);
 
-    document.querySelector("#camino").value = r.camino ? JSON.stringify(r.camino) : "";
+            $("#origenLat").val(ruta.origen.lat);
+            $("#origenLng").val(ruta.origen.lng);
 
-    document.querySelector("#estatus").value = r.estatus;
-    document.querySelector("#createdAt").value = r.createdAt.substring(0, 16);
+            $("#destinoLat").val(ruta.destino.lat);
+            $("#destinoLng").val(ruta.destino.lng);
 
-    document.querySelector("#btnCancelar").style.display = "inline-block";
+            $("#camino").val(JSON.stringify(ruta.camino, null, 2));
+
+
+            if (ruta.createdAt) {
+                const dt = new Date(ruta.createdAt);
+                const formatted = dt.toISOString().slice(0, 16); //yyyy-MM-ddTHH:mm
+                $("#createdAt").val(formatted);
+            }
+
+
+            modoEdicion = true;
+            idEdicion = id;
+
+            //Cambiar texto del botón y mostrar cancelar
+            $("#rutaForm button[type='submit']").text("Actualizar Ruta");
+            $("#btnCancelar").show();
+
+            // Scroll
+            $('html, body').animate({
+                scrollTop: $("#rutaForm").offset().top - 100
+            }, 500);
+        },
+        error: function (xhr, status, error) {
+            console.error("ERROR AL CARGAR RUTA:");
+            console.error("URL intentada:", APIRUTAS + id);
+            console.error("Status HTTP:", xhr.status);
+            console.error("Status text:", status);
+            console.error("Error:", error);
+            console.error("Respuesta completa:", xhr.responseText);
+
+            alert(`Error al cargar la ruta para editar. Código: ${xhr.status}\nURL: ${APIRUTAS + id}`);
+        }
+    });
+});
+
+
+$(document).on("click", ".eliminarRuta", function (e) {
+    e.preventDefault();
+    const id = $(this).data("id");
+
+    if (confirm("Desea eliminar esta ruta?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `${APIRUTAS}${id}`,
+            success: function () {
+                alert("Ruta eliminada exitosamente");
+                cargarRutas();
+            },
+            error: function (err) {
+                console.error("Error al eliminar ruta");
+                alert("Error al eliminar ruta");
+            }
+        });
+    };
+
+});
+
+$("#btnCancelar").on("click", function () {
+    cancelarEdicion();
+});
+
+//Cancel edit
+function cancelarEdicion() {
+    modoEdicion = false;
+    idEdicion = null;
+    $("#rutaFormulario")[0].reset();
+    $("#rutaFormulario button[type='submit']").text("Agregar Ruta");
+    $("#btnCancelar").hide();
 }
 
-// Cancelar edición
-document.querySelector("#btnCancelar").addEventListener("click", limpiarFormulario);
 
-function limpiarFormulario() {
-    editId = null;
-    document.querySelector("#rutaForm").reset();
-    document.querySelector("#btnCancelar").style.display = "none";
-}
-
-// Eliminar ruta
-async function eliminarRuta(id) {
-    if (!confirm("¿Eliminar ruta?")) return;
-
-    await fetch(`${APIRUTAS}${id}`, { method: "DELETE" });
+$(document).ready(function () {
     cargarRutas();
-}
+});

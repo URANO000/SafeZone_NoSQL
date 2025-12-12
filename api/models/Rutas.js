@@ -22,21 +22,39 @@ const destinoSchema = new mongoose.Schema({
     }
 }, {_id:false});
 
+const caminoItemSchema = new mongoose.Schema({
+    lat: {
+        type: Number,
+        required: true
+    },
+    lng: {
+        type: Number,
+        required: true
+    },
+    zonaEstatus: {
+        type: String,
+        enum: ["seguro", "peligro", "cuidado"],
+        required: true
+    }
+}, { _id: false });
+
 const RutasSchema = new mongoose.Schema(
     {
         usuarioId:{
             type: mongoose.Schema.Types.ObjectId,
-            require:true
+            required:true
         },
         origen: {
             type: origenSchema,
-            require:true
+            required:true
         },
         destino: {
             type: destinoSchema,
-            require:true
+            required:true
         },
         camino: {
+            type: [caminoItemSchema],
+            required:true
 
         },
         estatus: {
@@ -46,6 +64,7 @@ const RutasSchema = new mongoose.Schema(
         },
         createdAt: {
             type: Date,
+            default: Date.now,
             required:true
         }
     }

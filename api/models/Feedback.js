@@ -4,15 +4,12 @@ const FeedbackSchema = new mongoose.Schema(
   {
     usuarioId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Usuario",
       required: true,
     },
 
     mensaje: {
       type: String,
-      required: true,
-      trim: true,
-      minlength: 5,
+      required: true
     },
 
     rating: {
@@ -27,7 +24,9 @@ const FeedbackSchema = new mongoose.Schema(
       default: Date.now,
     }
   },
-  { versionKey: false }
+  {
+    collection: "feedback"
+  }
 );
 
 module.exports = mongoose.model("Feedback", FeedbackSchema);

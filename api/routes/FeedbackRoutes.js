@@ -1,5 +1,6 @@
 const express = require("express");
 const route = express.Router();
+
 const Feedback = require("../models/Feedback");
 
 // POST
@@ -17,10 +18,12 @@ route.post("/", async (req, resp) => {
 // GET - Obtener todo el feedback
 route.get("/", async (req, resp) => {
   try {
-    const feedbacks = await Feedback.find().populate("usuarioId");
-    resp.json(feedbacks);
+    const data = await Feedback.find();
+    console.log(`Encontradas ${data.length} feedback`);
+    resp.json(data);
   } catch (error) {
-    resp.status(500).json({ mensaje: error.message });
+    console.error('Error en GET ALL:', error);
+    resp.status(500).json({ message: error.message });
   }
 });
 
