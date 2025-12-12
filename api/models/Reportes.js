@@ -22,7 +22,8 @@ const ReportesSchema = new mongoose.Schema(
         },
         timestamp: {
             type: Date,
-            required: true
+            default: Date.now,
+            require: true
         },
         tipo: {
             type: String,

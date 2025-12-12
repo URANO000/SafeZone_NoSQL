@@ -18,23 +18,25 @@ route.get('/', async(req, resp) => {
 });
 
 //Get by id
-route.get('/:id', async(req,resp) => {
+route.get('/:id', async (req, resp) => {
     console.log("Get by id");
 
-    try{
+    try {
         const reportes = await Reporte.findById(req.params.id);
 
-        if(!reportes){
+        if (!reportes) {
             console.log('Reporte no encontrado');
-            return resp.status(404).json({message:"Reporte not found"});
+            return resp.status(404).json({ message: "Reporte not found" });
         }
-        console.log('Reporte no encontrado', error.message);
+
         resp.json(reportes);
 
-    }catch(error){
-        resp.status(500).json({message:error.message});
+    } catch (error) {
+        console.error('Error en GET BY ID:', error.message);
+        resp.status(500).json({ message: error.message });
     }
 });
+
 
 //Post o create
 route.post('/', async (req, resp) => {
@@ -88,7 +90,7 @@ route.put('/:id', async(req,resp) => {
         }
 
         console.log("Reporte actualizado");
-        return resp.status(500).json({message:error.message});
+        resp.status(200).json(updated);
     }catch(error){
         resp.status(500).json({message: error.message});
     }
@@ -97,7 +99,7 @@ route.put('/:id', async(req,resp) => {
 //DELETE
 route.delete('/:id', async(req,resp) => {
     try{
-        const deleted = await Reporte.findByIdAndUpdate(req.params.id);
+        const deleted = await Reporte.findByIdAndDelete(req.params.id);
 
         if(!deleted){
             console.log("Reporte no encontrado");

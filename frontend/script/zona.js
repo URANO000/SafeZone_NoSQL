@@ -8,7 +8,6 @@ function cargarZonas() {
         type: "GET",
         url: APIZONAS,
         success: function(zonas) {
-            console.log("Zonas cargadas:", zonas);
             const tbody = $("#tablaZonas tbody");
             tbody.empty();
 
@@ -99,7 +98,6 @@ $(document).on("click", ".editarZona", function(e){
         type: "GET",
         url: APIZONAS + id,
         success: function(zona){
-            console.log("✅ Zona recibida exitosamente:", zona);
             
             // Cargar datos en el formulario
             $("#nombre").val(zona.nombre);

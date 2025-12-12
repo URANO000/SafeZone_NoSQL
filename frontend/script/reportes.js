@@ -1,22 +1,22 @@
 // API base
-const API_REPORTES = "http://localhost:7000/api/reportes";
+const API_REPORTES = "http://localhost:7000/api/reportes/";
 
-let editId = null;
+let modoEdicion = false;
+let idEdicion = null;
 
 // Cargar reportes al iniciar
-document.addEventListener("DOMContentLoaded", cargarReportes);
 
-async function cargarReportes() {
-    try {
-        const resp = await fetch(API_REPORTES);
-        const data = await resp.json();
+function cargarReportes() {
+    $.ajax({
+        type: "GET",
+        url: API_REPORTES,
+        success: function (reportes) {
+            const tbody = $("#tablaReportes tbody");
+            tbody.empty();
 
-        const tbody = document.querySelector("#tablaReportes tbody");
-        tbody.innerHTML = "";
-
-        data.forEach(r => {
-            tbody.innerHTML += `
-                <tr>
+            reportes.forEach(r => {
+                tbody.append(`
+                     <tr>
                     <td>${r._id}</td>
                     <td>${r.descripcion}</td>
                     <td>${r.estatus}</td>
@@ -27,89 +27,146 @@ async function cargarReportes() {
                     <td>${new Date(r.timestamp).toLocaleString()}</td>
                     <td>${Array.isArray(r.mediaIds) ? r.mediaIds.join(", ") : "-"}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm" onclick="editar('${r._id}')">
-                            <i class="fa fa-edit"></i>
+                        <button class="btn btn-primary btn-sm editarReporte" data-id="${r._id}">
+                            Editar
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="eliminar('${r._id}')">
-                            <i class="fa fa-trash"></i>
+                        <button class="btn btn-danger btn-sm eliminarReporte" data-id="${r._id}">
+                            Eliminar
                         </button>
                     </td>
                 </tr>
-            `;
-        });
 
-    } catch (error) {
-        console.error("Error cargando reportes:", error);
-    }
+                 `);
+
+            });
+
+        },
+        error: function (err) {
+            console.error("Error al cargar reportes", err);
+        }
+    });
 }
 
-// Guardar o actualizar reporte
-document.querySelector("#reporteForm").addEventListener("submit", async e => {
+//cancelar edicion
+function cancelarEdicion() {
+    modoEdicion = false;
+    idEdicion = null;
+    $("#reporteForm")[0].reset();
+    $("#reporteForm button[type='submit").text("Agregar Reporte");
+    $("#btnCancelar").hide();
+}
+
+//Guardar o actualizar reporte
+$("#reporteForm").on("submit", function (e) {
     e.preventDefault();
 
-    const mediaIdsString = document.querySelector("#mediaIds").value;
+    const mediaIdsString = $("#mediaIds").val();
 
-    const reporteData = {
-        descripcion: document.querySelector("#descripcion").value,
-        estatus: document.querySelector("#estatus").value,
+    const datos = {
+        descripcion: $("#descripcion").val(),
+        estatus: $("#estatus").val(),
         mediaIds: mediaIdsString ? mediaIdsString.split(",").map(s => s.trim()) : [],
-        severidad: document.querySelector("#severidad").value,
-        timestamp: document.querySelector("#timestamp").value,
-        tipo: document.querySelector("#tipo").value,
-        usuarioId: document.querySelector("#usuarioId").value,
-        zonaId: document.querySelector("#zonaId").value
+        severidad: $("#severidad").val(),
+        tipo: $("#tipo").val(),
+        usuarioId: $("#usuarioId").val(),
+        zonaId: $("#zonaId").val()
     };
 
-    const metodo = editId ? "PUT" : "POST";
-    const endpoint = editId ? `${API_REPORTES}/${editId}` : API_REPORTES;
+    const tipoPeticion = modoEdicion ? "PUT" : "POST";
+    const urlPeticion = modoEdicion ? `${API_REPORTES}${idEdicion}` : API_REPORTES;
 
-    try {
-        await fetch(endpoint, {
-            method: metodo,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(reporteData)
-        });
+    console.log("Enviando petición:", tipoPeticion, urlPeticion, datos);
 
-        limpiarFormulario();
-        cargarReportes();
-
-    } catch (error) {
-        console.error("Error guardando reporte:", error);
-    }
+    $.ajax({
+        type: tipoPeticion,
+        url: urlPeticion,
+        data: JSON.stringify(datos),
+        contentType: "application/json",
+        success: function (response) {
+            alert(modoEdicion ? "Reporte actualizado exitosamente" : "Reporte guardado exitosamente ");
+            cancelarEdicion();
+            cargarReportes();
+        },
+        error: function (err) {
+            console.error("Error al guardar reporte", err);
+            console.error("Respuesta del servidor:", err.responseText);
+            alert("Error al guardar zona");
+        }
+    });
 });
 
 // Editar
-async function editar(id) {
-    editId = id;
+$(document).on("click", ".editarReporte", function (e) {
+    e.preventDefault();
+    const id = $(this).data("id");
+    console.log("=== INICIO DEBUG EDITAR ===");
+    console.log("ID del botón:", id);
+    console.log("Tipo de ID:", typeof id);
+    console.log("API URL base:", API_REPORTES);
+    console.log("URL completa que se va a llamar:", API_REPORTES + id);
+    console.log("=== FIN DEBUG ===");
 
-    const resp = await fetch(`${API_REPORTES}/${id}`);
-    const r = await resp.json();
+    $.ajax({
+        type:"GET",
+        url:API_REPORTES + id,
+        success: function(reportes){
+            //cargar datos
+            $("#descripcion").val(reportes.descripcion);
+            $("#estatus").val(reportes.estatus);
+            $("#mediaIds").val(reportes.mediaIds);
+            $("#severidad").val(reportes.severidad);
+            $("#timestamp").val(reportes.timestamp);
+            $("#tipo").val(reportes.tipo);
+            $("#usuarioId").val(reportes.usuarioId);
+            $("#zonaId").val(reportes.zonaId);
 
-    document.querySelector("#descripcion").value = r.descripcion;
-    document.querySelector("#estatus").value = r.estatus;
-    document.querySelector("#mediaIds").value = r.mediaIds?.join(", ") || "";
-    document.querySelector("#severidad").value = r.severidad;
-    document.querySelector("#timestamp").value = r.timestamp ? r.timestamp.split(".")[0] : "";
-    document.querySelector("#tipo").value = r.tipo;
-    document.querySelector("#usuarioId").value = r.usuarioId;
-    document.querySelector("#zonaId").value = r.zonaId;
+            modoEdicion = true;
+            idEdicion = id;
 
-    document.querySelector("#btnCancelar").style.display = "inline-block";
-}
+            //Cambiar txt del btn'
+            $("#reporteForm button[type='submit']").text("Actualizar reporte");
+            $("#btnCancelar").show();
 
-// Cancelar edición
-document.querySelector("#btnCancelar").addEventListener("click", limpiarFormulario);
+            //scroll
+            $('html, body').animate({
+                scrollTop: $("#reporteForm").offset().top - 100
+            }, 500);
+        },
+        error: function(xhr, status, error){
+            alert(`Error al cargar el reporte a editar. Code ${xhr.status}\nURL: ${API_REPORTES + id}`)
+        }
+    })
+})
 
-function limpiarFormulario() {
-    editId = null;
-    document.querySelector("#reporteForm").reset();
-    document.querySelector("#btnCancelar").style.display = "none";
-}
+
 
 // Eliminar
-async function eliminar(id) {
-    if (!confirm("¿Eliminar reporte?")) return;
+$(document).on("click", ".eliminarReporte", function (e) {
+    e.preventDefault();
+    const id = $(this).data("id");
 
-    await fetch(`${API_REPORTES}/${id}`, { method: "DELETE" });
+    if (confirm("Desea eliminar este reporte?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `${API_REPORTES}${id}`,
+            success: function () {
+                alert("Reporte eliminado exitosamente");
+                cargarReportes();
+            },
+            error: function (err) {
+                console.error("Error al eliminar reporte: ", err);
+                alert("Error al eliminar reporte");
+            }
+        });
+    }
+})
+
+//Cancelar
+$("#btnCancelar").on("click", function () {
+    cancelarEdicion();
+});
+
+
+$(document).ready(function () {
     cargarReportes();
-}
+});
